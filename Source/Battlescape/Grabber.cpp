@@ -15,29 +15,57 @@ UGrabber::UGrabber()
 	// ...
 }
 
-
 // Called when the game starts
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
+	FindPhysComponent();
+	AttachInputComponent();
 }
-
 
 // Called every frame
 void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
+	RayCast();
+}
+
+void UGrabber::FindPhysComponent() {
+	PhysHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	if (PhysHandle) {
+		// success
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("%s does not have a physics handle!"), *(GetOwner()->GetName()));
+	}
+}
+
+void UGrabber::AttachInputComponent() {
+	InputHandle = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (InputHandle) {
+		UE_LOG(LogTemp, Warning, TEXT("%s has an input component!"), *(GetOwner()->GetName()));
+		InputHandle->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+		InputHandle->BindAction("Grab", IE_Released, this, &UGrabber::Release);
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("%s does not have an input component!"), *(GetOwner()->GetName()));
+	}
+}
+
+void UGrabber::Grab() {
+	UE_LOG(LogTemp, Warning, TEXT("Grab pressed!"));
+}
+
+void UGrabber::Release() {
+	UE_LOG(LogTemp, Warning, TEXT("Grab released!"));
+}
+
+void UGrabber::RayCast() {
 	FVector PlayerLocation;
 	FRotator PlayerCameraRotator;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(ALTER PlayerLocation, ALTER PlayerCameraRotator);
 
-	//Debug purposes
-	//UE_LOG(LogTemp, Warning, TEXT("Now at (%s, %s)"), *PlayerLocation.ToString(), *PlayerCameraRotator.ToString());
 	FVector PlayerReach = PlayerLocation + PlayerCameraRotator.Vector() * Reach;
-	DrawDebugLine(GetWorld(), PlayerLocation, PlayerReach, FColor(255, 0, 0), false, 0.f, 0.f, 10.f);
 
 	//Ray-casting variables
 	FHitResult HitObject;
@@ -52,4 +80,3 @@ void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompon
 		UE_LOG(LogTemp, Warning, TEXT("%s Hit!"), *(HitSuccess->GetName()));
 	}
 }
-

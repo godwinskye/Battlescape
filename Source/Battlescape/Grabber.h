@@ -21,7 +21,14 @@ public:
 	// Called every frame
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
+	void FindPhysComponent();
+	void AttachInputComponent();
+
+	void Grab();
+	void Release();
+	void RayCast();
 private:
 	float Reach = 100.f;
-	
+	UPhysicsHandleComponent *PhysHandle = nullptr;
+	UInputComponent *InputHandle = nullptr;
 };
