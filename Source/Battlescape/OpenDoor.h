@@ -26,7 +26,7 @@ public:
 
 	float GetTotalMassOnPressurePlate();
 private:
-	AActor* Owner;
+	AActor* Owner = nullptr;
 	float CloseDelay = 0.5f;
 	const float MassToOpenDoor = 50.f;
 
@@ -34,9 +34,9 @@ private:
 		float LastOpened;
 
 	UPROPERTY(VisibleAnywhere)
-		float OpenAngle = 20.f;
+		float OpenAngle = 5.f;
 
 	UPROPERTY(EditAnywhere)
-		ATriggerVolume* PressurePlate;
+		ATriggerVolume* PressurePlate = nullptr;
 
 };

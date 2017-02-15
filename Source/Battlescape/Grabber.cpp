@@ -27,6 +27,9 @@ void UGrabber::BeginPlay()
 void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
+	if (!PhysHandle || !InputHandle) {
+		return;
+	}
 
 	if (PhysHandle->GrabbedComponent) {
 		PhysHandle->SetTargetLocation(LineTrace().PlayerReach);
@@ -45,7 +48,7 @@ UGrabber::LineTraceVectors UGrabber::LineTrace() {
 
 void UGrabber::FindPhysComponent() {
 	PhysHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if (PhysHandle == nullptr) {
+	if (!PhysHandle) {
 		UE_LOG(LogTemp, Error, TEXT("%s does not have a physics handle!"), *(GetOwner()->GetName()));
 	}
 }
@@ -75,6 +78,9 @@ void UGrabber::Grab() {
 }
 
 void UGrabber::Release() {
+	if (!PhysHandle) {
+		return;
+	}
 	PhysHandle->ReleaseComponent();
 }
 
