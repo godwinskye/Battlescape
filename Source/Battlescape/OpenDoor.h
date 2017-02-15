@@ -5,6 +5,7 @@
 #include "Components/ActorComponent.h"
 #include "OpenDoor.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDoorAction);      //F for generic class prefix (Unreal Coding Standards)
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BATTLESCAPE_API UOpenDoor : public UActorComponent
@@ -18,6 +19,12 @@ public:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintAssignable)
+		FDoorAction OpenRequest;
+
+	UPROPERTY(BlueprintAssignable)
+		FDoorAction CloseRequest;
+
 	void OpenDoor();
 	void CloseDoor();
 
@@ -27,14 +34,8 @@ public:
 	float GetTotalMassOnPressurePlate();
 private:
 	AActor* Owner = nullptr;
-	float CloseDelay = 0.5f;
+
 	const float MassToOpenDoor = 50.f;
-
-	UPROPERTY(VisibleAnywhere)
-		float LastOpened;
-
-	UPROPERTY(VisibleAnywhere)
-		float OpenAngle = 5.f;
 
 	UPROPERTY(EditAnywhere)
 		ATriggerVolume* PressurePlate = nullptr;
