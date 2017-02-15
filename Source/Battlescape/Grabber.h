@@ -21,14 +21,25 @@ public:
 	// Called every frame
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
+	struct LineTraceVectors {
+		FVector PlayerLocation;
+		FVector PlayerReach;
+
+		LineTraceVectors(FVector location, FVector reach) {
+			PlayerLocation = location;
+			PlayerReach = reach;
+		}
+	};
+
+	LineTraceVectors LineTrace();
 	void FindPhysComponent();
 	void AttachInputComponent();
 
 	void Grab();
 	void Release();
-	void RayCast();
+	FHitResult RayCastForObject();
 private:
-	float Reach = 100.f;
+	const float Reach = 100.f;
 	UPhysicsHandleComponent *PhysHandle = nullptr;
 	UInputComponent *InputHandle = nullptr;
 };

@@ -27,15 +27,25 @@ void UGrabber::BeginPlay()
 void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
-	RayCast();
+
+	if (PhysHandle->GrabbedComponent) {
+		PhysHandle->SetTargetLocation(LineTrace().PlayerReach);
+	}
+}
+
+UGrabber::LineTraceVectors UGrabber::LineTrace() {
+	FVector PlayerLocation;
+	FRotator PlayerCameraRotator;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(ALTER PlayerLocation, ALTER PlayerCameraRotator);
+
+	FVector PlayerReach = PlayerLocation + PlayerCameraRotator.Vector() * Reach;
+
+	return LineTraceVectors(PlayerLocation, PlayerReach);
 }
 
 void UGrabber::FindPhysComponent() {
 	PhysHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if (PhysHandle) {
-		// success
-	}
-	else {
+	if (PhysHandle == nullptr) {
 		UE_LOG(LogTemp, Error, TEXT("%s does not have a physics handle!"), *(GetOwner()->GetName()));
 	}
 }
@@ -43,7 +53,6 @@ void UGrabber::FindPhysComponent() {
 void UGrabber::AttachInputComponent() {
 	InputHandle = GetOwner()->FindComponentByClass<UInputComponent>();
 	if (InputHandle) {
-		UE_LOG(LogTemp, Warning, TEXT("%s has an input component!"), *(GetOwner()->GetName()));
 		InputHandle->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
 		InputHandle->BindAction("Grab", IE_Released, this, &UGrabber::Release);
 	}
@@ -53,30 +62,38 @@ void UGrabber::AttachInputComponent() {
 }
 
 void UGrabber::Grab() {
-	UE_LOG(LogTemp, Warning, TEXT("Grab pressed!"));
+	FHitResult HitObject = RayCastForObject();
+	AActor* HitObjectPrescence = HitObject.GetActor();
+	if (HitObjectPrescence) {
+		PhysHandle->GrabComponent(
+			HitObject.GetComponent(), 
+			NAME_None, 
+			HitObject.GetComponent()->GetOwner()->GetActorLocation(), 
+			true
+		);
+	}
 }
 
 void UGrabber::Release() {
-	UE_LOG(LogTemp, Warning, TEXT("Grab released!"));
+	PhysHandle->ReleaseComponent();
 }
 
-void UGrabber::RayCast() {
-	FVector PlayerLocation;
-	FRotator PlayerCameraRotator;
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(ALTER PlayerLocation, ALTER PlayerCameraRotator);
+FHitResult UGrabber::RayCastForObject() {
+	LineTraceVectors TraceResult = LineTrace();
 
-	FVector PlayerReach = PlayerLocation + PlayerCameraRotator.Vector() * Reach;
-
-	//Ray-casting variables
+	//Ray-casting objects
 	FHitResult HitObject;
 	FCollisionObjectQueryParams HitTargets(ECollisionChannel::ECC_PhysicsBody);
 	FCollisionQueryParams HitParams(FName(TEXT("")), false, GetOwner());
-	//Ray-casting method
-	GetWorld()->LineTraceSingleByObjectType(ALTER HitObject, PlayerLocation, PlayerReach, HitTargets, HitParams);
 
-	//Debug purposes: hit object
-	AActor* HitSuccess = HitObject.GetActor();
-	if (HitSuccess) {
-		UE_LOG(LogTemp, Warning, TEXT("%s Hit!"), *(HitSuccess->GetName()));
-	}
+	//Ray-casting method
+	GetWorld()->LineTraceSingleByObjectType(
+		ALTER HitObject, 
+		TraceResult.PlayerLocation, 
+		TraceResult.PlayerReach, 
+		HitTargets, 
+		HitParams
+	);
+
+	return HitObject;
 }

@@ -3,6 +3,7 @@
 #include "Battlescape.h"
 #include "OpenDoor.h"
 
+#define ALTER
 
 // Sets default values for this component's properties
 UOpenDoor::UOpenDoor()
@@ -20,7 +21,6 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
 	Owner = GetOwner();
-	OpenActor = GetWorld()->GetFirstPlayerController()->GetPawn();
 }
 
 void UOpenDoor::OpenDoor() {
@@ -31,12 +31,24 @@ void UOpenDoor::CloseDoor() {
 	Owner->SetActorRotation(FRotator(0.f, 80.f, 0.f));
 }
 
+float UOpenDoor::GetTotalMassOnPressurePlate() {
+	float TotalMass = 0.f;
+
+	TArray<AActor*> OverlappingObjects;
+	PressurePlate->GetOverlappingActors(OverlappingObjects);
+
+	for (auto& Object : OverlappingObjects) {
+		TotalMass += Object->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+	}
+	return TotalMass;
+}
+
 // Called every frame
 void UOpenDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
-	if (PressurePlate->IsOverlappingActor(OpenActor)) {
+	if (GetTotalMassOnPressurePlate() >= MassToOpenDoor) {
 		OpenDoor();
 		LastOpened = GetWorld()->GetRealTimeSeconds();
 	}
