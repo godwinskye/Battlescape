@@ -35,7 +35,8 @@ public:
 private:
 	AActor* Owner = nullptr;
 
-	const float MassToOpenDoor = 50.f;
+	UPROPERTY(EditAnywhere)
+		float MassToOpenDoor = 50.f;
 
 	UPROPERTY(EditAnywhere)
 		ATriggerVolume* PressurePlate = nullptr;

@@ -350,3 +350,9 @@ __pycache__/
 # tools/**
 # !tools/packages.config
 
+/Content/KiteDemo
+/Content/Vegetation
+/Content/Textures
+/Content/Player_Assets/Blueprints
+/Content/Meshes/Trees
+/Content/Material
