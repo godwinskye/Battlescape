@@ -1,6 +1,6 @@
 # Jazz In Hell
 
-## Inspired by Ben Tristem's Escape Project, a very simple escape game with 10 rooms and a garden
+## Inspired by Ben Tristem's Escape Project, An Escape Game Comprising of 10 Rooms and a Garden
 
 This game is my first very small project that helps me understand some basic elements of game programming in general, along with Unreal Engine 4.
 The game contains 10 rooms with spotlights, whereby you can move objects into them to help you escape from one room to another, all the way until
